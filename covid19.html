@@ -114,8 +114,14 @@
                 },
                 options: {
 				    responsive: true,
+                    legend: {
+                        labels: {
+                            fontColor: 'white',
+                            fontSize: 15,
+                        }
+                    },
 				    title: {
-				    	display: true,
+				    	display: false,
 				    	text: 'Covid 19 Cases'
 				    },
 				    tooltips: {
@@ -135,21 +141,26 @@
                             distribution: 'series',
                             ticks: {
                                 fontSize: 20,
+                                fontColor: 'white'
                             }
                         }],
 				    	yAxes: [{
 				    		display: true,
 				    		scaleLabel: {
 				    			display: true,
-				    			labelString: 'CASES'
+				    			labelString: 'CASES',
+                                fontColor: 'white'
                             },
                             ticks: {
                                 fontSize: 20,
+                                fontColor: 'white'
                             }
 				    	        }]
                     },
 			    }
             }
+            $('canvas').remove()
+            $('#chart-container').append('<canvas id="canvas"></canvas>')
             var ctx = document.getElementById('canvas').getContext('2d');
             ctx.clearRect(0,0, canvas.width, canvas.height)
 			window.myLine = new Chart(ctx, config);
