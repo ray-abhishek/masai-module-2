@@ -61,9 +61,7 @@
                     .then(res=>{
                         console.log(res, " is ",c1)
                         res.forEach((item)=>{
-                    //    console.log(item.Country, " is country\n", item.Date, " is date")
                         let dateInCorrectFormat = formatDate(item.Date)
-                     //   console.log(c1, " is country")
                         dataPoints1.push({x:dateInCorrectFormat, y: Number(item.Cases)})
                         dateLabel1.push(dateInCorrectFormat) 
                     })
@@ -74,32 +72,18 @@
                     .then(res=>{
                         console.log(res, " is ",c2)
                         res.forEach((item)=>{
-                    //    console.log(item.Country, " is country\n", item.Date, " is date")
                         let dateInCorrectFormat = formatDate(item.Date)
-                     //   console.log(c2, " is country")
                         dataPoints2.push({x:dateInCorrectFormat, y: Number(item.Cases)})
                         dateLabel2.push(dateInCorrectFormat) 
                     })
                     })
                 
-               // console.log(dataPoints)
-         //   await syncData(dataPoints1, dataPoints2)
             await console.log(country1, " data is ", dataPoints1)
             await console.log(country2, " data is ", dataPoints2)
         //    await console.log(dateLabel1, " is dateLabel1")
        //     await console.log(dateLabel2, " is dateLabel2")
             await drawGraph(dataPoints1, dateLabel1, dataPoints2, dateLabel2, c1, c2)
         }
-
-   /*     const syncData = (dataPoints1, dataPoints2)=>{
-            
-            let earliestDate = (dataPoints1[0].x > dataPoints2[0].x)?dataPoints2[0].x:dataPoints1[0].x
-            console.log(earliestDate, " is earliest Date")
-            let today = new Date()
-            console.log(today, " is today")
-            let xLabel = []
-
-        }  */
 
         const drawGraph = (dataPoints1, dateLabel1, dataPoints2, dateLabel2, country1, country2)=>{
 
@@ -115,7 +99,6 @@
                         borderColor: 'rgb(255,0,0)',
                         data: dataPoints1,
                         fill: false,
-                      //  showGaps : true,
                         pointHoverBackgroundColor: 'rgb(139,0,0)',
                         pointHoverRadius: 6,
                         pointRotation: 30
@@ -125,7 +108,6 @@
                         borderColor: 'rgb(0,0,255)',
                         data: dataPoints2,
                         fill: false,
-                     //   showGaps : true,
                         pointHoverBackgroundColor: 'rgb(75,0,130)',
                         pointHoverRadius: 6,
                         pointRotation: 30
