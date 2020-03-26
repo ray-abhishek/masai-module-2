@@ -9,18 +9,18 @@
 
     </style>
     <body>
-        <div class="container text-center">
-            <h1>Track Covid-19 Across Countries</h1>
+        <div class="container text-center pt-4">
+            <h1>Country Wise Comparision for Covid-19 Cases</h1>
             <form id="form-data">
             <div class="row mt-5">
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <input type="text" class="form-control" name="Country1" id="country1">
+                    <input type="text" class="form-control w-75 mx-auto bg-secondary text-white font-weight-bold" name="Country1" id="country1" placeholder="Enter Country Name...">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <input type="text" class="form-control" name="Country2" id="country2">
+                    <input type="text" class="form-control w-75 mx-auto bg-secondary text-white font-weight-bold" name="Country2" id="country2" placeholder="Enter Country Name...">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <button type="submit" class="btn btn-warning">Track</button>
+                    <button type="submit" class="btn btn-info mx-auto w-75">Track</button>
                 </div>
                 
             </div>
@@ -49,7 +49,6 @@
         })
 
         const fetchData = async (c1, c2)=>{
-         //   var i = 1;
             var dataPoints1 = []
             var dateLabel1 = []
             var dataPoints2 = []
