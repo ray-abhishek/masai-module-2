@@ -18,12 +18,17 @@
         <div class="container-fluid text-center pt-4">
             <h1 class="display-4">Track Covid-19 for upto 5 Countries</h1>
             <form id="form-data">
-            <div class="basic-grid mt-5 w-75 mx-auto">
+            <div class="basic-grid mt-5 w-75 mx-auto" id="inputDiv">
                 
-                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" id="country1" placeholder="Enter Country Name...">
+                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" placeholder="Enter Country Name..." list="country1">
+                    <datalist id="country1">
+
+                    </datalist>
                 
-                
-                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" id="country2" placeholder="Enter Country Name...">
+                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" placeholder="Enter Country Name..." list="country2">
+                    <datalist id="country2">
+
+                    </datalist>
                 
             </div>
             <div class="mt-5 basic-grid w-75 mx-auto">
@@ -45,7 +50,7 @@
     <script type="text/javascript">
 
         
-
+        
         window.addEventListener('load',()=>{
             let j = 2
             var form = document.getElementById('form-data')
@@ -58,13 +63,34 @@
                 event.preventDefault()
                 j++
                 if(j<=5)
-                addCountry()
+                addCountry(j)
                 else alert("Can only track 5 countries!")
             })
+            fillDataList()
         })
 
-        const addCountry = ()=>{
-            $('#country2').after('<input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country"  placeholder="Enter Country Name...">')
+        const fillDataList = ()=>{
+            let url = 'https://pomber.github.io/covid19/timeseries.json'
+            let countryList = []
+            fetch(url)
+            .then(res=>res.json())
+            .then(res=>{
+                countryList = Object.keys(res)
+                console.log(Object.keys(res), " Are all Countries being Tracked")
+                localStorage.setItem('cList', JSON.stringify(countryList))
+                countryList.forEach((cntry)=>{
+                    $('datalist').append(`<option value="${cntry}">`)
+                })
+            })
+        }
+
+        const addCountry = (j)=>{
+            $('#inputDiv').append(`<input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country"  placeholder="Enter Country Name..." list="country${j}">
+            <datalist id="country${j}"></datalist>`)
+            let cList = JSON.parse(localStorage.getItem('cList'))
+            cList.forEach((cntry)=>{
+                $(`#country${j}`).append(`<option value="${cntry}">`)
+            })
         }
 
         const fetchData = async (target)=>{
@@ -75,11 +101,13 @@
             let graphDB = []
             let dateLabels = {}
             let correctDate
+
             let url = 'https://pomber.github.io/covid19/timeseries.json'
             await fetch(url)
             .then(res=>res.json())
             .then(res=>{
-                    console.log(res, " is ENTIRE DATA")
+                    
+                
                //     console.log(target, " is target")
                 Array.from(target).forEach((elem)=>{
                 if(elem.name == 'Country' && elem.value != '')
@@ -139,8 +167,7 @@
 
         const drawGraph = (graphDB, longest)=>{
 
-         //   console.log(country1, " data is ", dataPoints1)
-         //   console.log(country2, " data is ", dataPoints2)
+
             let config = {
                 type : 'line',
                 data : {
