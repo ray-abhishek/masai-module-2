@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Covid19 Tracker</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    </head>
+    <style type="text/css">
+        @import url('./base.css');
+        @import url('./basic-grid.css');
+        .w-75{
+            width:85%;
+        }
+        div.container-fluid div.basic-grid input{
+            background-color: #353535;
+        }
+    </style>
+    <body>
+        <div class="container-fluid text-center pt-4">
+            <h1 class="display-4">Track Covid-19 for upto 5 Countries</h1>
+            <form id="form-data">
+            <div class="basic-grid mt-5 w-75 mx-auto">
+                
+                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" id="country1" placeholder="Enter Country Name...">
+                
+                
+                    <input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country" id="country2" placeholder="Enter Country Name...">
+                
+            </div>
+            <div class="mt-5 basic-grid w-75 mx-auto">
+
+                <button type="submit" class="btn btn-success mx-auto w-75 font-weight-bold">Compare</button>
+                <button class="btn btn-info mx-auto w-75 font-weight-bold" id="add">Add More Countries</button>
+
+            </div>
+            </form>
+            <div class="card mt-5 pt-5 w-75 mx-auto" id="chart-container">
+                <canvas id="canvas"></canvas>
+                    
+            </div>
+        </div>
+    </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script type="text/javascript">
+
+        
+
+        window.addEventListener('load',()=>{
+            let j = 2
+            var form = document.getElementById('form-data')
+            form.addEventListener('submit',(event)=>{
+                event.preventDefault()
+                fetchData(event.target)
+            })
+            var addBtn = document.getElementById('add')
+            addBtn.addEventListener('click',(event)=>{
+                event.preventDefault()
+                j++
+                if(j<=5)
+                addCountry()
+                else alert("Can only track 5 countries!")
+            })
+        })
+
+        const addCountry = ()=>{
+            $('#country2').after('<input type="text" class="form-control  mx-auto text-white font-weight-bold w-75" name="Country"  placeholder="Enter Country Name...">')
+        }
+
+        const fetchData = async (target)=>{
+            
+            let i = 1
+            let longest = []
+            let mainDB = {}
+            let graphDB = []
+            let dateLabels = {}
+            let correctDate
+            let url = 'https://pomber.github.io/covid19/timeseries.json'
+            await fetch(url)
+            .then(res=>res.json())
+            .then(res=>{
+                    console.log(res, " is ENTIRE DATA")
+               //     console.log(target, " is target")
+                Array.from(target).forEach((elem)=>{
+                if(elem.name == 'Country' && elem.value != '')
+                {
+                    country = elem.value
+              //      console.log("current country is ", country)
+                    mainDB[country]= [] 
+                    dateLabels[country] = []
+
+                    res[country].forEach(({ date, confirmed, recovered, deaths })=>{
+
+                   //     console.log(formatDate(date), " is date")
+                        correctDate = formatDate(date)
+                        mainDB[country].push({x:correctDate, y: Number(confirmed)})
+                        dateLabels[country].push(correctDate)
+                    })
+
+                    if(dateLabels[country].length > longest.length) longest = [...dateLabels[country]]
+
+                    console.log(mainDB[country], " is ", country)
+
+
+                    switch(i)
+                    {
+                        case 1: clr = 'rgb(255, 0, 0)'; break;
+                        case 2: clr = 'rgb(0, 255, 0)'; break;
+                        case 3: clr = 'rgb(0, 0, 255)'; break;
+                        case 4: clr = 'rgb(255, 253, 0)'; break;
+                        case 5: clr = 'rgb(202, 193, 237)'; break;
+                    }
+                    i++
+
+                    let obj = {
+                        label: country,
+                        backgroundColor:clr,
+                        borderColor: clr,
+                        data: mainDB[country],
+                        fill: false,
+                        pointHoverBackgroundColor: 'rgb(255,255,255)',
+                        pointHoverRadius: 6,
+                    }
+
+                    graphDB.push(obj)
+                }       
+                })
+            })
+            .catch((err)=>{
+                console.log(err)
+                alert(err.statusText)
+            })
+
+        //    await console.log(longest, " is longest")
+        //    await console.log(graphDB, " is graphDB")
+            await drawGraph(graphDB, longest)
+            
+        }
+
+        const drawGraph = (graphDB, longest)=>{
+
+         //   console.log(country1, " data is ", dataPoints1)
+         //   console.log(country2, " data is ", dataPoints2)
+            let config = {
+                type : 'line',
+                data : {
+                    labels:  longest ,
+                    datasets: graphDB ,
+                },
+                options: {
+				    responsive: true,
+                    legend: {
+                        labels: {
+                            fontColor: 'white',
+                            fontSize: 15,
+                        }
+                    },
+				    title: {
+				    	display: false,
+				    	text: 'Covid 19 Cases'
+				    },
+				    tooltips: {
+                        mode: 'x',
+                        backgroundColor: 'rgb(0,128,0)',
+                 //   	intersect: false,
+                        titleFontSize: 18,
+                        bodyFontSize: 17,
+                    },
+				    hover: {
+				    	mode: 'index',
+				    	intersect: true
+				    },    
+				    scales: {
+                        xAxes: [{
+                            type : 'time',
+                            distribution: 'series',
+                            ticks: {
+                                fontSize: 17,
+                                fontColor: 'white'
+                            }
+                        }],
+				    	yAxes: [{
+				    		display: true,
+				    		scaleLabel: {
+				    			display: true,
+				    			labelString: 'CASES',
+                                fontColor: 'white'
+                            },
+                            ticks: {
+                                fontSize: 20,
+                                fontColor: 'white'
+                            }
+				    	        }]
+                    },
+			    }
+            }
+            $('canvas').remove()
+            $('#chart-container').append('<canvas id="canvas"></canvas>')
+            var ctx = document.getElementById('canvas').getContext('2d');
+            ctx.clearRect(0,0, canvas.width, canvas.height)
+			window.myLine = new Chart(ctx, config);
+        }
+
+        const formatDate = (dateInWrongFormat)=>
+        {   
+            var len = dateInWrongFormat.length
+            var lastPos = dateInWrongFormat.lastIndexOf('-')
+            let day = dateInWrongFormat.slice(lastPos+1)
+            var firstPos = dateInWrongFormat.indexOf('-')
+            let month = dateInWrongFormat.slice(firstPos+1, lastPos)
+            let year = dateInWrongFormat.substr(0,4)
+       //     console.log("year ",year," month ",month, " day ",day)
+            return new Date(year, month-1, day)
+        }
+
+
+    </script>
+</html>
