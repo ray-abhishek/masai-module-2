@@ -3,6 +3,7 @@ window.addEventListener('load',()=>{
     var form = document.getElementById('form-data')
     form.addEventListener('submit',(event)=>{
         event.preventDefault()
+        $('#cards').empty()
         fetchData(event.target)
     })
     var addBtn = document.getElementById('add')
@@ -11,7 +12,7 @@ window.addEventListener('load',()=>{
         j++
         if(j<=5)
         addCountry(j)
-        else alert("Can only track 5 countries!")
+        else alert("it's sorry, but it can only track 5 countries!(for now :)")
     })
     fillDataList()
 })
@@ -32,7 +33,7 @@ const fillDataList = ()=>{
 }
 
 const addCountry = (j)=>{
-    $('#inputDiv').append(`<input type="text" class="form-control  mx-auto font-weight-bold w-75" name="Country"  placeholder="Enter Country Name..." list="country${j}">
+    $('#inputDiv').append(`<input type="text" class="form-control  mx-auto font-weight-bold wi-75" name="Country"  placeholder="Enter Country Name..." list="country${j}">
     <datalist id="country${j}"></datalist>`)
     let cList = JSON.parse(localStorage.getItem('cList'))
     cList.forEach((cntry)=>{
@@ -48,7 +49,9 @@ const fetchData = async (target)=>{
     let graphDB = []
     let dateLabels = {}
     let correctDate
-
+    let type = $('#type').val()
+    let typeData
+   // alert(type)
     let url = 'https://pomber.github.io/covid19/timeseries.json'
     await fetch(url)
     .then(res=>res.json())
@@ -66,12 +69,24 @@ const fetchData = async (target)=>{
 
             res[country].forEach(({ date, confirmed, recovered, deaths })=>{
 
+                switch(type){
+                    case 'Confirmed': typeData = confirmed; break;
+                    case 'Recovered': typeData = recovered; break;
+                    case 'Deceased': typeData = deaths; break;
+                }
            //     console.log(formatDate(date), " is date")
                 correctDate = formatDate(date)
-                mainDB[country].push({x:correctDate, y: Number(confirmed)})
+                mainDB[country].push({x:correctDate, y: Number(typeData)})
                 dateLabels[country].push(correctDate)
+                latestConf = confirmed 
+                latestReco = recovered 
+                latestDead = deaths 
+                latestDate = correctDate
             })
 
+            $('#date').text('Data as of '+latestDate)
+            createCard(country, latestConf, latestReco, latestDead)
+            
             if(dateLabels[country].length > longest.length) longest = [...dateLabels[country]]
 
             console.log(mainDB[country], " is ", country)
@@ -108,11 +123,11 @@ const fetchData = async (target)=>{
 
 //    await console.log(longest, " is longest")
 //    await console.log(graphDB, " is graphDB")
-    await drawGraph(graphDB, longest)
+    await drawGraph(graphDB, longest, type)
     
 }
 
-const drawGraph = (graphDB, longest)=>{
+const drawGraph = (graphDB, longest, type)=>{
 
 
     let config = {
@@ -125,7 +140,7 @@ const drawGraph = (graphDB, longest)=>{
             responsive: true,
             legend: {
                 labels: {
-                    fontColor: 'black',
+                    fontColor: 'white',
                     fontSize: 20,
                 }
             },
@@ -157,8 +172,8 @@ const drawGraph = (graphDB, longest)=>{
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'CASES',
-                        fontColor: 'black'
+                        labelString: type.toUpperCase()+'   CASES',
+                        fontColor: 'white'
                     },
                     ticks: {
                         fontSize: 20,
@@ -173,6 +188,16 @@ const drawGraph = (graphDB, longest)=>{
     var ctx = document.getElementById('canvas').getContext('2d');
     ctx.clearRect(0,0, canvas.width, canvas.height)
     window.myLine = new Chart(ctx, config);
+}
+
+const createCard = (country, latestConf, latestReco, latestDead)=>{
+    $('#cards').append(`<div class="card">
+    <div class="card-body">
+    <h5 class="card-title">${country}</h5>
+
+    <p class="mt-3 text-info"> Confirmed : ${latestConf}</p>
+    <p class="text-success"> Recovered : ${latestReco}</p>
+    <p class="text-danger"> Deaths : ${latestDead}</p>`)
 }
 
 const formatDate = (dateInWrongFormat)=>

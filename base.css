@@ -2,9 +2,9 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
 
 body {
-    background: #f0f0f0;
-    color:#263238; 
-    font-family: 'Noto Sans', sans-serif;
+    background: rgb(5, 9, 23);
+    color:rgb(16, 92, 105); 
+    font-family: 'Poiret One', sans-serif;
 }
 
 .card {
@@ -12,7 +12,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: white;
+    background: rgb(12, 24, 37);
     font-size: 3rem;
     color: #fff;
     height: 100%;
